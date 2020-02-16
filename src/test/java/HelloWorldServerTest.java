@@ -15,7 +15,7 @@ public class HelloWorldServerTest {
     public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
     @Test
-    public void greeterImpl_replyMessage(){
+    public void testGreeterImplReplyMessage() {
         grpcServerRule.getServiceRegistry().addService(new HelloWorldServer.GreeterImpl());
 
         GreeterGrpc.GreeterBlockingStub blockingStub =
@@ -24,7 +24,9 @@ public class HelloWorldServerTest {
 
         HelloReply reply = blockingStub.sayHello(HelloRequest.newBuilder().setName(testName).build());
 
-        Assert.assertEquals("Hello " + testName, reply.getMessage());
+        Assert.assertEquals(
+                "Wrong answer from server: " + reply.getMessage(),
+                "Hello " + testName, reply.getMessage());
     }
 
 }
