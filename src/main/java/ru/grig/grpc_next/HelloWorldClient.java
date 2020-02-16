@@ -76,7 +76,7 @@ public class HelloWorldClient {
    * Blocking unary call example.  Calls getFeature and prints the response.
    */
   public void getFeature(int lat, int lon) {
-    logger.info(String.format("*** GetFeature: lat={0} lon={1}", lat, lon));
+    logger.info(String.format("*** GetFeature: lat=%d lon=%d", lat, lon));
 
     Point request = Point.newBuilder().setLatitude(lat).setLongitude(lon).build();
 
@@ -84,17 +84,17 @@ public class HelloWorldClient {
     try {
       feature = blockingStubRoute.getFeature(request);
     } catch (StatusRuntimeException e) {
-      logger.warning(String.format("RPC failed: {0}", e.getStatus()));
+      logger.warning(String.format("RPC failed: %s", e.getStatus().toString()));
       return;
     }
 
     if (RouteGuideUtil.exists(feature)) {
-      logger.info(String.format("Found feature called \"{0}\" at {1}, {2}",
+      logger.info(String.format("Found feature called \"%s\" at %f, %f",
               feature.getName(),
               RouteGuideUtil.getLatitude(feature.getLocation()),
               RouteGuideUtil.getLongitude(feature.getLocation())));
     } else {
-      logger.info(String.format("Found no feature at {0}, {1}",
+      logger.info(String.format("Found no feature at %f, %f",
               RouteGuideUtil.getLatitude(feature.getLocation()),
               RouteGuideUtil.getLongitude(feature.getLocation())));
     }
@@ -115,7 +115,7 @@ public class HelloWorldClient {
       }
       client.greet(user + " <<<");
       client.getFeature(0, 0);
-      client.getFeature(400000000, -750000000);
+      client.getFeature(404839914, -744759616);
 
     } finally {
       client.shutdown();
