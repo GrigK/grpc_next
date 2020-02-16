@@ -22,8 +22,13 @@ import io.grpc.stub.StreamObserver;
 import ru.grig.grpc_next.GreeterGrpc;
 import ru.grig.grpc_next.HelloReply;
 import ru.grig.grpc_next.HelloRequest;
+import ru.grig.routeguide.Feature;
+import ru.grig.routeguide.Point;
+import ru.grig.routeguide.RouteGuideGrpc;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 /**
@@ -39,6 +44,8 @@ public class HelloWorldServer {
     int port = 50051;
     server = ServerBuilder.forPort(port)
         .addService(new GreeterImpl())
+        .addService(new RouteGuideServiceImpl(
+                RouteGuideUtil.parseFeatures(RouteGuideUtil.getDefaultFeaturesFile())))
         .build()
         .start();
     logger.info("Server started, listening on " + port);
@@ -93,4 +100,32 @@ public class HelloWorldServer {
       responseObserver.onCompleted();
     }
   }
+
+  public static class RouteGuideServiceImpl extends RouteGuideGrpc.RouteGuideImplBase {
+    private final Collection<Feature> features;
+
+    RouteGuideServiceImpl(Collection<Feature> features) {
+      this.features = features;
+    }
+
+    @Override
+    public void getFeature(Point request, StreamObserver<Feature> responseObserver) {
+      super.getFeature(request, responseObserver);
+      responseObserver.onNext(checkFeature(request));
+      responseObserver.onCompleted();
+    }
+
+    private Feature checkFeature(Point location) {
+      for (Feature feature : features) {
+        if (feature.getLocation().getLatitude() == location.getLatitude()
+                && feature.getLocation().getLongitude() == location.getLongitude()) {
+          return feature;
+        }
+      }
+
+      // No feature was found, return an unnamed feature.
+      return Feature.newBuilder().setName("").setLocation(location).build();
+    }
+  }
 }
+
