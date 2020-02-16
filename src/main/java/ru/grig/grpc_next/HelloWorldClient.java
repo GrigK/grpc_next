@@ -1,28 +1,17 @@
-/*
- * Copyright 2015 The gRPC Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package ru.grig.grpc_next;
 
+import com.google.protobuf.Message;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import ru.grig.grpc_next.GreeterGrpc;
 import ru.grig.grpc_next.HelloReply;
 import ru.grig.grpc_next.HelloRequest;
+import ru.grig.routeguide.Feature;
+import ru.grig.routeguide.Point;
+import ru.grig.routeguide.RouteGuideGrpc;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +24,11 @@ public class HelloWorldClient {
 
   private final ManagedChannel channel;
   private final GreeterGrpc.GreeterBlockingStub blockingStub;
+  private RouteGuideGrpc.RouteGuideBlockingStub blockingStubRoute;
+  private RouteGuideGrpc.RouteGuideStub asyncStubRoute;
+
+  private Random random = new Random();
+//  private TestHelper testHelper;
 
   /** Construct client connecting to HelloWorld server at {@code host:port}. */
   public HelloWorldClient(String host, int port) {
@@ -48,7 +42,9 @@ public class HelloWorldClient {
   /** Construct client for accessing HelloWorld server using the existing channel. */
   HelloWorldClient(ManagedChannel channel) {
     this.channel = channel;
-    blockingStub = GreeterGrpc.newBlockingStub(channel);
+    blockingStub = GreeterGrpc.newBlockingStub(this.channel);
+    blockingStubRoute = RouteGuideGrpc.newBlockingStub(this.channel);
+    asyncStubRoute = RouteGuideGrpc.newStub(this.channel);
   }
 
   public void shutdown() throws InterruptedException {
@@ -73,7 +69,35 @@ public class HelloWorldClient {
       logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
       return;
     }
-    logger.info("Greeting: " + response.getMessage());
+    logger.info("Greeting Again: " + response.getMessage());
+  }
+
+  /**
+   * Blocking unary call example.  Calls getFeature and prints the response.
+   */
+  public void getFeature(int lat, int lon) {
+    logger.info(String.format("*** GetFeature: lat={0} lon={1}", lat, lon));
+
+    Point request = Point.newBuilder().setLatitude(lat).setLongitude(lon).build();
+
+    Feature feature;
+    try {
+      feature = blockingStubRoute.getFeature(request);
+    } catch (StatusRuntimeException e) {
+      logger.warning(String.format("RPC failed: {0}", e.getStatus()));
+      return;
+    }
+
+    if (RouteGuideUtil.exists(feature)) {
+      logger.info(String.format("Found feature called \"{0}\" at {1}, {2}",
+              feature.getName(),
+              RouteGuideUtil.getLatitude(feature.getLocation()),
+              RouteGuideUtil.getLongitude(feature.getLocation())));
+    } else {
+      logger.info(String.format("Found no feature at {0}, {1}",
+              RouteGuideUtil.getLatitude(feature.getLocation()),
+              RouteGuideUtil.getLongitude(feature.getLocation())));
+    }
   }
 
   /**
@@ -89,7 +113,10 @@ public class HelloWorldClient {
       if (args.length > 0) {
         user = args[0];
       }
-      client.greet(user);
+      client.greet(user + " <<<");
+      client.getFeature(0, 0);
+      client.getFeature(400000000, -750000000);
+
     } finally {
       client.shutdown();
     }
