@@ -110,7 +110,6 @@ public class HelloWorldServer {
 
     @Override
     public void getFeature(Point request, StreamObserver<Feature> responseObserver) {
-      super.getFeature(request, responseObserver);
       responseObserver.onNext(checkFeature(request));
       responseObserver.onCompleted();
     }
