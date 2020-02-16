@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package ru.grig;
+package ru.grig.grpc_next;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import ru.grig.grpc_next.GreeterGrpc;
+import ru.grig.grpc_next.HelloReply;
+import ru.grig.grpc_next.HelloRequest;
+
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package ru.grig;
+package ru.grig.grpc_next;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
+import ru.grig.grpc_next.GreeterGrpc;
+import ru.grig.grpc_next.HelloReply;
+import ru.grig.grpc_next.HelloRequest;
+
 import java.io.IOException;
 import java.util.logging.Logger;
 

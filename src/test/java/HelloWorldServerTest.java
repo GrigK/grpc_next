@@ -4,10 +4,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import ru.grig.GreeterGrpc;
-import ru.grig.HelloReply;
-import ru.grig.HelloRequest;
-import ru.grig.HelloWorldServer;
+import ru.grig.grpc_next.GreeterGrpc;
+import ru.grig.grpc_next.HelloReply;
+import ru.grig.grpc_next.HelloRequest;
+import ru.grig.grpc_next.HelloWorldServer;
 
 @RunWith(JUnit4.class)
 public class HelloWorldServerTest {
